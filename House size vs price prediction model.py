@@ -1,27 +1,28 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import plotly.express as px
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
-# Generate synthetic data
+# Generate synthetic house data
 def generate_house_data(n_samples=100):
     np.random.seed(50)
     size = np.random.normal(1400, 200, n_samples)
     price = size * 50 + np.random.normal(0, 5000, n_samples)
-    return pd.DataFrame({'size': size, 'price': price})
+    return pd.DataFrame({"size": size, "price": price})
 
-# Train model
+# Train ML model
 def train_model():
     df = generate_house_data()
-    X = df[['size']]
-    y = df['price']
+    X = df[["size"]]
+    y = df["price"]
+
     model = LinearRegression()
     model.fit(X, y)
     return model, df
 
 def main():
-    st.title("🏠 House Price Prediction App")
+    st.title("🏠 House Size vs Price Prediction")
 
     model, df = train_model()
 
@@ -37,22 +38,16 @@ def main():
 
         st.success(f"Estimated House Price: ₹ {predicted_price:,.2f}")
 
-        fig = px.scatter(
-            df,
-            x="size",
-            y="price",
-            title="House Size vs Price"
-        )
+        # Plot using matplotlib
+        fig, ax = plt.subplots()
+        ax.scatter(df["size"], df["price"], label="Training Data")
+        ax.scatter(size, predicted_price, color="red", s=100, label="Prediction")
+        ax.set_xlabel("House Size (sq ft)")
+        ax.set_ylabel("Price")
+        ax.set_title("House Size vs Price")
+        ax.legend()
 
-        fig.add_scatter(
-            x=[size],
-            y=[predicted_price],
-            mode="markers",
-            marker=dict(size=15, color="red"),
-            name="Prediction"
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
+        st.pyplot(fig)
 
 if __name__ == "__main__":
     main()
